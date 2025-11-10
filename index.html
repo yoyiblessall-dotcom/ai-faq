@@ -265,7 +265,7 @@
 
 // 提交問題到 pending_questions
 function submitUserQuestion(industry, question) {
-  const API_URL = 'https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec';
+  const API_URL = 'https://script.google.com/macros/s/AKfycbyxtCInQRmnGm4YA4kTZXa1edHXdq8diA8cVWJwUFU_3Q1-WdJaY8PnbzPrFyCITXLGVg/exec';
   fetch(`${API_URL}?action=submit_question&industry=${encodeURIComponent(industry)}&question=${encodeURIComponent(question)}`)
     .then(res => res.json())
     .then(data => {
