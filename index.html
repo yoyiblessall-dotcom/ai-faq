@@ -226,18 +226,54 @@
 
     // 模擬問答（三天後換成 Apps Script API）
     function askQuestion() {
-      const q = document.getElementById('questionInput').value.trim();
-      const ansBox = document.getElementById('answerBox');
-      if (!q) {
-        ansBox.style.display = 'block';
-        ansBox.textContent = '請輸入您的問題。';
-        return;
-      }
+  const q = document.getElementById('questionInput').value.trim();
+  const ansBox = document.getElementById('answerBox');
+  if (!q) {
+    ansBox.style.display = 'block';
+    ansBox.textContent = '請輸入您的問題。';
+    return;
+  }
 
-      // 這裡未來改成 fetch() Apps Script Web App
-      ansBox.style.display = 'block';
-      ansBox.innerHTML = '🔍 正在從知識庫查詢…<br>（三天後此處將有 AI 自動回覆！）';
-    }
+  const urlParams = new URLSearchParams(window.location.search);
+  const industry = urlParams.get('industry') || 'general';
+  
+  // 👇 換成你的 Apps Script Web App 網址
+  const API_URL = 'https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec';
+
+  ansBox.style.display = 'block';
+  ansBox.innerHTML = '🔍 查詢中…';
+
+  fetch(`${API_URL}?action=ask&industry=${encodeURIComponent(industry)}&q=${encodeURIComponent(q)}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.answer) {
+        ansBox.innerHTML = `<strong>💡 回覆：</strong> ${data.answer}`;
+      } else {
+        ansBox.innerHTML = `⚠️ ${data.message || '找不到答案。'}`;
+        
+        // 自動收集問題（可選）
+        if (confirm('要將此問題提交給我們嗎？')) {
+          submitUserQuestion(industry, q);
+        }
+      }
+    })
+    .catch(err => {
+      ansBox.innerHTML = '❌ 查詢失敗，請稍後再試。';
+      console.error(err);
+    });
+}
+
+// 提交問題到 pending_questions
+function submitUserQuestion(industry, question) {
+  const API_URL = 'https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec';
+  fetch(`${API_URL}?action=submit_question&industry=${encodeURIComponent(industry)}&question=${encodeURIComponent(question)}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert('感謝您的提問！我們會盡快處理。');
+      }
+    });
+}
   </script>
 </body>
 </html>
