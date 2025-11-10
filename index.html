@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 小副手｜24 小時客服問答</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #5D8AA8;
+      --light-bg: #f9fbfd;
+      --card-bg: #ffffff;
+      --text: #2d3748;
+      --shadow: 0 4px 12px rgba(93, 138, 168, 0.15);
+      --radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: var(--light-bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 0;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-top: 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--primary);
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 24px;
+    }
+
+    /* FAQ 查詢區 */
+    .faq-box {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .faq-box label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .faq-box input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 16px;
+    }
+
+    .faq-box button {
+      margin-top: 12px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .faq-box button:hover {
+      opacity: 0.9;
+    }
+
+    .answer {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f0f7ff;
+      border-radius: 8px;
+      display: none;
+    }
+
+    /* 行業卡片（入口頁用） */
+    .industry-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .industry-card {
+      background: white;
+      border-radius: var(--radius);
+      padding: 16px 12px;
+      text-align: center;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .industry-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .industry-card a {
+      text-decoration: none;
+      color: var(--text);
+      display: block;
+    }
+
+    /* 浮動按鈕 */
+    .floating-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--primary);
+      color: white;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: var(--shadow);
+      z-index: 1000;
+    }
+
+    /* 響應式 */
+    @media (max-width: 600px) {
+      h1 { font-size: 24px; }
+      .subtitle { font-size: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 id="industry-title">AI 小副手｜24 小時客服問答</h1>
+      <p class="subtitle">輸入您的問題，立即獲得自動回覆 💬</p>
+    </header>
+
+    <!-- FAQ 查詢區（未來接 Apps Script API） -->
+    <div class="faq-box">
+      <label for="questionInput">請輸入您的問題（例如：「洗牙要預約嗎？」）</label>
+      <input type="text" id="questionInput" placeholder="輸入問題...">
+      <button onclick="askQuestion()">送出查詢</button>
+      <div id="answerBox" class="answer"></div>
+    </div>
+
+    <!-- 留下問題表單（嵌入點） -->
+    <div class="faq-box">
+      <h3>❓ 沒找到答案？</h3>
+      <p>留下您的問題，我們會盡快回覆並加入常見問答！</p>
+      <!-- 此處未來嵌入 Google Form 或自訂表單 -->
+      <p style="margin-top:12px; color:#5D8AA8;">[「留下問題」表單將在此處]</p>
+    </div>
+
+    <!-- 多版本入口（如果是首頁） -->
+    <div id="hub-section" style="display:none;">
+      <h2>選擇您的行業版本</h2>
+      <div class="industry-grid">
+        <div class="industry-card"><a href="?industry=dentist">🦷 牙醫診所</a></div>
+        <div class="industry-card"><a href="?industry=pet">🐾 寵物美容</a></div>
+        <div class="industry-card"><a href="?industry=education">📚 補習班</a></div>
+        <div class="industry-card"><a href="?industry=repair">🔧 維修服務</a></div>
+        <div class="industry-card"><a href="?industry=beauty">💅 美甲工作室</a></div>
+        <div class="industry-card"><a href="?industry=wedding">👗 婚紗攝影</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 浮動按鈕（右下 💬） -->
+  <a href="#" class="floating-btn" onclick="document.getElementById('questionInput').focus(); return false;">💬</a>
+
+  <script>
+    // 解析 URL 參數
+    const urlParams = new URLSearchParams(window.location.search);
+    const industry = urlParams.get('industry');
+
+    // 行業對應資料（未來可從 API 拿）
+    const industryMap = {
+      dentist: { name: '牙醫診所版', color: '#5D8AA8' },
+      pet: { name: '寵物美容版', color: '#8A9A5B' },
+      education: { name: '補習班版', color: '#4A7B9D' },
+      repair: { name: '維修服務版', color: '#6B8E23' },
+      beauty: { name: '美甲工作室版', color: '#C76199' },
+      wedding: { name: '婚紗攝影版', color: '#A35E7D' }
+    };
+
+    const titleEl = document.getElementById('industry-title');
+    const root = document.documentElement;
+
+    if (industry && industryMap[industry]) {
+      const info = industryMap[industry];
+      titleEl.textContent = `【${info.name}】AI 小副手`;
+      root.style.setProperty('--primary', info.color);
+    } else {
+      // 未指定 industry → 顯示多版本入口
+      document.getElementById('hub-section').style.display = 'block';
+      titleEl.textContent = '各行各業的 AI 小副手';
+    }
+
+    // 模擬問答（三天後換成 Apps Script API）
+    function askQuestion() {
+      const q = document.getElementById('questionInput').value.trim();
+      const ansBox = document.getElementById('answerBox');
+      if (!q) {
+        ansBox.style.display = 'block';
+        ansBox.textContent = '請輸入您的問題。';
+        return;
+      }
+
+      // 這裡未來改成 fetch() Apps Script Web App
+      ansBox.style.display = 'block';
+      ansBox.innerHTML = '🔍 正在從知識庫查詢…<br>（三天後此處將有 AI 自動回覆！）';
+    }
+  </script>
+</body>
+</html>
